@@ -30,12 +30,13 @@ module.exports = function(source) {
 
 	var missingFileMode = false;
 	function getFileContent(context, request) {
-		request = loaderUtils.urlToRequest(request, query.root)
+		request = loaderUtils.urlToRequest(request, query.root);
 		var baseRequest = request;
 		var filePath;
 
 		filePath = filePaths[context + " " + request];
-		if(filePath) return filePath;
+		if(filePath)
+			return filePath;
 
 		var isSync = true;
 		resolve(context, request, function(err, _request) {
@@ -134,7 +135,7 @@ module.exports = function(source) {
 	run();
 	function run() {
 		try {
-			var tmplFunc = pug.compileClient(source, {
+			var opts = {
 				filename: req,
 				doctype: query.doctype || "html",
 				pretty: query.pretty,
@@ -146,7 +147,12 @@ module.exports = function(source) {
 				plugins: [
 					plugin
 				].concat(query.plugins || [])
-			});
+			};
+
+			if (query.root)
+				opts.basedir = query.root;
+			//console.log("pug > " + req + " > " + query.root);
+			var tmplFunc = pug.compileClient(source, opts);
 		} catch(e) {
 			if(missingFileMode) {
 				// Ignore, it'll continue after async action
